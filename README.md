@@ -17,7 +17,29 @@
 
 该改动不改变进程内存统计，也不新增 App、Wired、Compressed 或 Pressure 显示行。与活动监视器对照时，应考虑采样时间与 GB / GiB 单位差异，不承诺逐字节相同。
 
-### 在 Mac 上试用实验分支
+### Homebrew 安装（macOS 14 或更新版本）
+
+已安装 Homebrew 的 Mac 可通过专属 [Tap](https://github.com/ZionHeZY/homebrew-tap) 安装内存适配版本：
+
+```bash
+brew install ZionHeZY/tap/btop
+btop
+```
+
+当前配方为 `1.4.7-macos.1`，固定到内存适配提交 `f1cd7d8`，安装时校验 SHA-256 并从源码编译；没有预编译 bottle。Homebrew 会安装所需构建依赖，旧编译器按上游配方规则使用 LLVM。最低安装要求不等于所有 macOS 版本都已实测。
+
+首次运行按 `o` 打开 Options，进入 Mem，将 **Macos activity monitor** 改为 `True`。默认仍为 `False`。
+
+**若已安装官方 btop，切换会卸载官方程序，但保留用户配置。** Homebrew 不允许同名配方跨 Tap 共存，确认要切换后执行：
+
+```bash
+brew uninstall homebrew/core/btop
+brew install ZionHeZY/tap/btop
+```
+
+升级使用 `brew upgrade ZionHeZY/tap/btop`。若已有手动安装版本且 `btop` 命令仍指向它，运行 `"$(brew --prefix ZionHeZY/tap/btop)/bin/btop"` 可明确使用本 Tap 的程序。
+
+### 手动编译实验分支
 
 需要 Git、Make，以及支持 C++23 的编译器；上游要求 Clang 19 或更新版本，本次本地验证使用 AppleClang 21。较旧的 Xcode 工具链可能不足，详见下方 [macOS 编译说明](#compilation-macos-osx)。
 
@@ -31,13 +53,13 @@ make CXX=clang++
 
 运行后按 `o` 打开 Options，进入 Mem，将 **Macos activity monitor** 改为 `True`。切换立即重新采集数据；改回 `False` 可恢复原统计口径。直接运行 `./bin/btop` 不会替换 Homebrew 安装的 btop。
 
-`brew install btop` 安装的是上游软件，不包含本 Fork 尚未合入的适配。下面保留的发行版链接、构建徽章和安装说明属于上游，不代表本 Fork 已发布安装包或通过对应平台验证。
+单独执行 `brew install btop` 仍安装上游软件，不包含本 Fork 尚未合入的适配。下面保留的上游发行版链接、构建徽章和安装说明，不代表本 Fork 已发布预编译安装包或通过对应平台验证。
 
 ### 已验证范围与兼容边界
 
 | 环境 / 场景 | 当前证据 |
 | --- | --- |
-| Apple Silicon，Darwin 27 | 原生构建、两种统计口径运行、菜单切换与配置保存通过 |
+| Apple Silicon，Darwin 27 | 原生构建、两种统计口径运行、菜单切换与配置保存通过；独立 Homebrew 前缀中安装 Tap 并运行通过 |
 | Intel x86_64 | macOS 14 部署目标交叉编译通过；尚未实机运行 |
 | 较旧 macOS | macOS 14 部署目标构建通过不等于旧系统实测；尚未验证旧系统运行 |
 | 内存算法边界 | 现有测试文件覆盖 4 KiB / 16 KiB 页、短计数器回复、零页大小和计数边界；本地测试 4/4 通过 |
@@ -47,7 +69,7 @@ make CXX=clang++
 
 1. **内存可解释性**：完善压缩、交换与内存压力的展示，明确各指标与活动监视器的对应关系。
 2. **Mac 兼容性**：补充 Apple Silicon / Intel 与不同 macOS 版本的实机验证，优先检测 API 能力并保留回退。
-3. **安装与分发**：整理可复现构建和易安装的 Mac 发行包；发布时明确架构、最低系统版本及签名 / 公证状态。
+3. **预编译与分发**：在已提供的 Homebrew 源码配方之外，整理可复现构建和预编译 Mac 发行包；发布时明确架构、最低系统版本及签名 / 公证状态。
 
 适配尽量维持小改动，成熟且通用的修复优先提交上游。计划不代表已支持，也不设未经验证的兼容性承诺。
 
