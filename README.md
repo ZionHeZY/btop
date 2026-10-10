@@ -1,5 +1,68 @@
 # ![btop++](Img/logo.png)
 
+## btop for macOS · macOS 适配分支
+
+这是 [ZionHeZY/btop](https://github.com/ZionHeZY/btop)，基于 [aristocratos/btop](https://github.com/aristocratos/btop) 的非官方 Fork。保留 btop 的终端资源监控体验，后续重点放在 macOS 的统计口径、兼容性与安装体验，不另起一套监控工具。
+
+**目前处于实验阶段。** 本 Fork 的 `main` 当前只增加项目说明；内存适配代码位于 [`fix/macos-activity-monitor-accounting`](https://github.com/ZionHeZY/btop/tree/fix/macos-activity-monitor-accounting)。该改动已提交至上游 [Draft PR #1893](https://github.com/aristocratos/btop/pull/1893)，尚不能视为上游已接受的功能。
+
+### 当前适配：可选的 macOS 内存统计口径
+
+实验分支新增 `macos_activity_monitor` 选项，默认 `false`，保持原来的 active + wired（活跃页 + 联动内存）算法。开启后改用活动监视器风格的物理内存统计：
+
+- **Used**：物理内存减去空闲和缓存，压缩内存及系统占用包含在剩余量中。
+- **Cache**：文件缓存与可清除内存；从空闲页中扣除 speculative pages（预读页），避免与文件缓存重复计数。
+- **Available**：空闲与可回收缓存之和，不等于立即空闲的 RAM，也不保证分配这些内存时无需交换。
+- **兼容回退**：检查内核实际返回的计数器范围；字段不足时使用原算法并记录一次警告，不按系统版本号猜测能力。
+
+该改动不改变进程内存统计，也不新增 App、Wired、Compressed 或 Pressure 显示行。与活动监视器对照时，应考虑采样时间与 GB / GiB 单位差异，不承诺逐字节相同。
+
+### 在 Mac 上试用实验分支
+
+需要 Git、Make，以及支持 C++23 的编译器；上游要求 Clang 19 或更新版本，本次本地验证使用 AppleClang 21。较旧的 Xcode 工具链可能不足，详见下方 [macOS 编译说明](#compilation-macos-osx)。
+
+```bash
+git clone --branch fix/macos-activity-monitor-accounting --single-branch \
+  https://github.com/ZionHeZY/btop.git btop-macos
+cd btop-macos
+make CXX=clang++
+./bin/btop
+```
+
+运行后按 `o` 打开 Options，进入 Mem，将 **Macos activity monitor** 改为 `True`。切换立即重新采集数据；改回 `False` 可恢复原统计口径。直接运行 `./bin/btop` 不会替换 Homebrew 安装的 btop。
+
+`brew install btop` 安装的是上游软件，不包含本 Fork 尚未合入的适配。下面保留的发行版链接、构建徽章和安装说明属于上游，不代表本 Fork 已发布安装包或通过对应平台验证。
+
+### 已验证范围与兼容边界
+
+| 环境 / 场景 | 当前证据 |
+| --- | --- |
+| Apple Silicon，Darwin 27 | 原生构建、两种统计口径运行、菜单切换与配置保存通过 |
+| Intel x86_64 | macOS 14 部署目标交叉编译通过；尚未实机运行 |
+| 较旧 macOS | macOS 14 部署目标构建通过不等于旧系统实测；尚未验证旧系统运行 |
+| 内存算法边界 | 现有测试文件覆盖 4 KiB / 16 KiB 页、短计数器回复、零页大小和计数边界；本地测试 4/4 通过 |
+| Linux / BSD | 新增代码以 `__APPLE__` 隔离；本地尚未构建或运行这些平台 |
+
+### 后续方向（计划，未实现）
+
+1. **内存可解释性**：完善压缩、交换与内存压力的展示，明确各指标与活动监视器的对应关系。
+2. **Mac 兼容性**：补充 Apple Silicon / Intel 与不同 macOS 版本的实机验证，优先检测 API 能力并保留回退。
+3. **安装与分发**：整理可复现构建和易安装的 Mac 发行包；发布时明确架构、最低系统版本及签名 / 公证状态。
+
+适配尽量维持小改动，成熟且通用的修复优先提交上游。计划不代表已支持，也不设未经验证的兼容性承诺。
+
+### 反馈与贡献
+
+Fork 专属问题请提交至 [ZionHeZY/btop Issues](https://github.com/ZionHeZY/btop/issues)，附 macOS 版本、芯片型号、btop 版本与分支、相关配置及复现步骤。内存差异请提供同一时段的对照数据，并遮盖截图中的敏感信息。
+
+通用功能和上游问题仍以 [上游项目](https://github.com/aristocratos/btop) 为准。贡献请遵守 [CONTRIBUTING.md](CONTRIBUTING.md)，并按要求披露 AI 生成代码。原作者与贡献者署名及 [Apache-2.0 许可证](LICENSE) 保持不变。
+
+---
+
+## 上游 btop 文档
+
+以下保留上游文档供参考；其中的项目动态、赞助、发行版与平台支持说明均来自上游。
+
 <a href="https://repology.org/project/btop/versions">
     <img src="https://repology.org/badge/vertical-allrepos/btop.svg" alt="Packaging status" align="right">
 </a>
