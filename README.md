@@ -53,7 +53,7 @@ make CXX=clang++
 
 ### 反馈与贡献
 
-Fork 专属问题请提交至 [ZionHeZY/btop Issues](https://github.com/ZionHeZY/btop/issues)，附 macOS 版本、芯片型号、btop 版本与分支、相关配置及复现步骤。内存差异请提供同一时段的对照数据，并遮盖截图中的敏感信息。
+本 Fork 尚未启用独立 Issues。当前内存适配的反馈可在 [PR #1893](https://github.com/aristocratos/btop/pull/1893) 讨论，附 macOS 版本、芯片型号、btop 版本与分支、相关配置及复现步骤。内存差异请提供同一时段的对照数据，并遮盖截图中的敏感信息。
 
 通用功能和上游问题仍以 [上游项目](https://github.com/aristocratos/btop) 为准。贡献请遵守 [CONTRIBUTING.md](CONTRIBUTING.md)，并按要求披露 AI 生成代码。原作者与贡献者署名及 [Apache-2.0 许可证](LICENSE) 保持不变。
 
